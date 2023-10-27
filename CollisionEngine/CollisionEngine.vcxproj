@@ -98,6 +98,11 @@
       <AdditionalDependencies>legacy_stdio_definitions.lib;libdrawtext-0.2.1.lib;SDL2.lib;SDL2main.lib;glew32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy $(SolutionDir)Libs\SDL2-2.0.3\lib\x86\SDL2.dll $(SolutionDir)$(Configuration)
+xcopy $(SolutionDir)Libs\glew\bin\Release\Win32\glew32.dll $(SolutionDir)$(Configuration)
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -119,6 +124,11 @@
       <AdditionalDependencies>legacy_stdio_definitions.lib;libdrawtext-0.2.1.lib;SDL2.lib;SDL2main.lib;glew32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy $(SolutionDir)Libs\SDL2-2.0.3\lib\x86\SDL2.dll $(SolutionDir)$(Configuration)
+xcopy $(SolutionDir)Libs\glew\bin\Release\Win32\glew32.dll $(SolutionDir)$(Configuration)
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
