@@ -20,7 +20,7 @@ public:
 private:
 	virtual void Update(float frameTime) override
 	{
-		gVars->pPhysicEngine->Activate(false);
+		//gVars->pPhysicEngine->Activate(false);
 
 
 		Vec2 point, normal;

@@ -16,7 +16,7 @@
 */
 int main(int argc, char** argv)
 {
-	InitApplication(1260, 768, 50.0f);
+	InitApplication(1366, 768, 50.0f);
 
 	gVars->pSceneManager->AddScene(new CSceneDebugCollisions());
 	gVars->pSceneManager->AddScene(new CSceneBouncingPolys(200));

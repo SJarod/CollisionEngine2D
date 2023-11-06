@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include <algorithm>
+
 
 #include "Maths.h"
 
@@ -20,6 +22,7 @@ public:
 	Vec2				position;
 	Mat2				rotation;
 	std::vector<Vec2>	points;
+
 
 	void				Build();
 	void				Draw();
@@ -53,5 +56,28 @@ private:
 };
 
 typedef std::shared_ptr<CPolygon>	CPolygonPtr;
+
+
+class CAxisAlignedBoundingBox
+{
+private:
+	float minx = FLT_MAX;
+	float maxx = FLT_MIN;
+	float miny = FLT_MAX;
+	float maxy = FLT_MIN;
+
+public:
+	CAxisAlignedBoundingBox() = delete;
+	CAxisAlignedBoundingBox(const CPolygon& polygon)
+	{
+		for (auto& p : polygon.points)
+		{
+			minx = std::min(minx, p.x);
+			maxx = std::max(maxx, p.x);
+			miny = std::min(miny, p.y);
+			maxy = std::max(maxy, p.y);
+		}
+	}
+};
 
 #endif
