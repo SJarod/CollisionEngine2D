@@ -115,6 +115,11 @@ struct Vec2
 		return max - min;
 	}
 
+	float GetCenter() const
+	{
+		return (x + y) / 2.f;
+	}
+
 	float GetSqrLength() const
 	{
 		return x*x + y*y;

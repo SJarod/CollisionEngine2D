@@ -54,7 +54,7 @@ void CPolygon::Draw() const
 	float aabbTRS[16] = { aabb->xrange.GetRange() / 2.f, 0.f, 0.f, 0.f,
 						  0.f, aabb->yrange.GetRange() / 2.f, 0.f, 0.f,
 						  0.f, 0.f, 1.f, 1.f,
-						  position.x, position.y, -1.f, 1.f };
+						  aabb->xrange.GetCenter(), aabb->yrange.GetCenter(), -1.f, 1.f };
 	glPushMatrix();
 	glMultMatrixf(aabbTRS);
 
