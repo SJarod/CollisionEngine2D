@@ -27,7 +27,7 @@ public:
 
 
 	void				Build();
-	void				Draw();
+	void				Draw() const;
 	size_t				GetIndex() const;
 
 	float				GetArea() const;
@@ -46,8 +46,8 @@ public:
 
 private:
 	void				CreateBuffers();
-	void				BindPolygonBuffers();
-	void				BindAABBBuffers();
+	void				BindPolygonBuffers() const;
+	void				BindAABBBuffers() const;
 	void				DestroyBuffers();
 
 	void				BuildLines();
@@ -68,6 +68,8 @@ typedef std::shared_ptr<CPolygon>	CPolygonPtr;
 class CAxisAlignedBoundingBox
 {
 public:
+	bool bCollisionWithOtherAABB = false;
+
 	Vec2 xrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 	Vec2 yrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 
@@ -80,6 +82,7 @@ public:
 
 	void Reset(const class CPolygon& polygon)
 	{
+		bCollisionWithOtherAABB = false;
 		xrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 		yrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 

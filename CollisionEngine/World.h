@@ -47,7 +47,7 @@ public:
 		}
 	}
 	size_t		GetPolygonCount() const;
-	CPolygonPtr	GetPolygon(size_t index);
+	CPolygonPtr&	GetPolygon(size_t index);
 
 	template<typename TFunctor>
 	void	ForEachBehavior(TFunctor functor)

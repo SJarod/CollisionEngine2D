@@ -1,3 +1,6 @@
+#include "GlobalVariables.h"
+
+
 #include "Polygon.h"
 #include <GL/glu.h>
 
@@ -7,6 +10,7 @@
 CPolygon::CPolygon(size_t index)
 	: m_polygonVertexBufferId(0), m_index(index), density(0.1f)
 {
+	aabb = std::make_shared<CAxisAlignedBoundingBox>(*this);
 }
 
 CPolygon::~CPolygon()
@@ -17,13 +21,12 @@ CPolygon::~CPolygon()
 void CPolygon::Build()
 {
 	m_lines.clear();
-	aabb = std::make_shared<CAxisAlignedBoundingBox>(*this);
 
 	CreateBuffers();
 	BuildLines();
 }
 
-void CPolygon::Draw()
+void CPolygon::Draw() const
 {
 	// polygon
 
@@ -45,6 +48,9 @@ void CPolygon::Draw()
 
 	// aabb
 
+	if (!gVars->bDebug)
+		return;
+
 	float aabbTRS[16] = { aabb->xrange.GetRange() / 2.f, 0.f, 0.f, 0.f,
 						  0.f, aabb->yrange.GetRange() / 2.f, 0.f, 0.f,
 						  0.f, 0.f, 1.f, 1.f,
@@ -52,10 +58,17 @@ void CPolygon::Draw()
 	glPushMatrix();
 	glMultMatrixf(aabbTRS);
 
+	if (!aabb->bCollisionWithOtherAABB)
+		glColor3f(1.f, 0.f, 0.f);
+	else
+		glColor3f(0.f, 1.f, 0.f);
+
 	// Draw vertices
 	BindAABBBuffers();
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glColor3f(0.f, 0.f, 0.f);
 
 	glPopMatrix();
 }
@@ -147,7 +160,7 @@ void CPolygon::CreateBuffers()
 	}
 }
 
-void CPolygon::BindPolygonBuffers()
+void CPolygon::BindPolygonBuffers() const
 {
 	if (m_polygonVertexBufferId != 0)
 	{
@@ -158,7 +171,7 @@ void CPolygon::BindPolygonBuffers()
 	}
 }
 
-void CPolygon::BindAABBBuffers()
+void CPolygon::BindAABBBuffers() const
 {
 	if (m_aabbVertexBufferId != 0)
 	{

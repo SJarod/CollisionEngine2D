@@ -115,14 +115,14 @@ size_t	CWorld::GetPolygonCount() const
 	return m_polygons.size();
 }
 
-CPolygonPtr		CWorld::GetPolygon(size_t index)
+CPolygonPtr&		CWorld::GetPolygon(size_t index)
 {
 	return m_polygons[index];
 }
 
 void	CWorld::Update(float frameTime)
 {
-	for(CBehaviorPtr behavior : m_behaviors)
+	for(CBehaviorPtr& behavior : m_behaviors)
 	{
 		behavior->Update(frameTime);
 	}
@@ -130,7 +130,7 @@ void	CWorld::Update(float frameTime)
 
 void	CWorld::RenderPolygons()
 {
-	for (CPolygonPtr polygon : m_polygons)
+	for (CPolygonPtr& polygon : m_polygons)
 	{
 		polygon->Draw();
 	}

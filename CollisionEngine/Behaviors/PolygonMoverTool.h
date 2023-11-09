@@ -66,9 +66,6 @@ class CPolygonMoverTool : public CBehavior
 		{
 			m_selectedPoly.reset();
 		}
-
-		if (m_selectedPoly)
-			m_selectedPoly->aabb->Reset(*m_selectedPoly);
 	}
 
 private:

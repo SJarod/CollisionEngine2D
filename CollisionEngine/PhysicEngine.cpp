@@ -61,6 +61,7 @@ void	CPhysicEngine::Step(float deltaTime)
 void	CPhysicEngine::CollisionBroadPhase()
 {
 	m_pairsToCheck.clear();
+	gVars->pWorld->ForEachPolygon([](CPolygonPtr poly) { poly->aabb->Reset(*poly); });
 	m_broadPhase->GetCollidingPairsToCheck(m_pairsToCheck);
 }
 
