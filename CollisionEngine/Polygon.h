@@ -38,7 +38,7 @@ public:
 	// if point is outside then returned distance is negative (and doesn't make sense)
 	bool				IsPointInside(const Vec2& point) const;
 
-	bool				CheckCollision(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist) const;
+	bool				(*CheckCollision)(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist) = nullptr;
 
 	// Physics
 	float				density;

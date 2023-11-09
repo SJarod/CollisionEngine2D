@@ -7,10 +7,27 @@
 
 #include "PhysicEngine.h"
 
+
+// narrow phase collision detection
+bool Analytical(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
+{
+	return false;
+}
+bool SeparateAxisTheorem(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
+{
+	return false;
+}
+bool GJK(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
+{
+	return false;
+}
+
+
 CPolygon::CPolygon(size_t index)
 	: m_polygonVertexBufferId(0), m_index(index), density(0.1f)
 {
 	aabb = std::make_shared<CAxisAlignedBoundingBox>(*this);
+	CheckCollision = &Analytical;
 }
 
 CPolygon::~CPolygon()
@@ -100,11 +117,6 @@ bool	CPolygon::IsPointInside(const Vec2& point) const
 	}
 
 	return maxDist <= 0.f;
-}
-
-bool	CPolygon::CheckCollision(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist) const
-{
-	return false;
 }
 
 void CPolygon::CreateBuffers()
