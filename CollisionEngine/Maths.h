@@ -39,7 +39,11 @@ size_t Random(size_t from, size_t to);
 
 struct Vec2
 {
-	float x, y;
+	union
+	{
+		struct { float x; float y; };
+		struct { float min; float max; };
+	};
 
 	Vec2() : x(0.0f), y(0.0f){}
 
@@ -104,6 +108,11 @@ struct Vec2
 	float GetLength() const
 	{
 		return sqrtf(x*x + y*y);
+	}
+
+	float GetRange() const
+	{
+		return max - min;
 	}
 
 	float GetSqrLength() const

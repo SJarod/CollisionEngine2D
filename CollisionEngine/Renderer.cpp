@@ -119,6 +119,7 @@ void CRenderer::Update()
 	float frameTime = UpdateFrameTime();
 	DrawFPS(frameTime);
 
+	// collision detection
 	gVars->pPhysicEngine->Step(frameTime);
 	
 	timer.Start();

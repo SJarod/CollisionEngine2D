@@ -16,7 +16,11 @@ public:
 		{
 			for (size_t j = i + 1; j < gVars->pWorld->GetPolygonCount(); ++j)
 			{
-				pairsToCheck.push_back(SPolygonPair(gVars->pWorld->GetPolygon(i), gVars->pWorld->GetPolygon(j)));
+				auto p = SPolygonPair(gVars->pWorld->GetPolygon(i), gVars->pWorld->GetPolygon(j));
+				auto a = p.polyA->points.size();
+				auto b = p.polyA->points.size();
+				if (p.AABBIntersection())
+					pairsToCheck.push_back(p);
 			}
 		}
 	}

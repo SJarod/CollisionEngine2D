@@ -17,12 +17,12 @@ class CPolygonMoverTool : public CBehavior
 		CPolygonPtr clickedPoly;
 
 		gVars->pWorld->ForEachPolygon([&](CPolygonPtr poly)
-		{
-			if (poly->IsPointInside(mousePoint))
 			{
-				clickedPoly = poly;
-			}
-		});
+				if (poly->IsPointInside(mousePoint))
+				{
+					clickedPoly = poly;
+				}
+			});
 
 		return clickedPoly;
 	}
@@ -55,7 +55,7 @@ class CPolygonMoverTool : public CBehavior
 					Vec2 from = m_clickMousePos - m_selectedPoly->position;
 					Vec2 to = mousePoint - m_selectedPoly->position;
 
-					m_selectedPoly->rotation.SetAngle(m_clickAngle + from.Angle(to)); 
+					m_selectedPoly->rotation.SetAngle(m_clickAngle + from.Angle(to));
 					m_selectedPoly->speed = Vec2();
 				}
 
@@ -66,6 +66,9 @@ class CPolygonMoverTool : public CBehavior
 		{
 			m_selectedPoly.reset();
 		}
+
+		if (m_selectedPoly)
+			m_selectedPoly->aabb->Reset(*m_selectedPoly);
 	}
 
 private:

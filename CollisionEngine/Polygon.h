@@ -5,10 +5,12 @@
 #include <vector>
 #include <memory>
 
-#include <algorithm>
+#include <limits>
 
 
 #include "Maths.h"
+
+
 
 class CPolygon
 {
@@ -44,15 +46,20 @@ public:
 
 private:
 	void				CreateBuffers();
-	void				BindBuffers();
+	void				BindPolygonBuffers();
+	void				BindAABBBuffers();
 	void				DestroyBuffers();
 
 	void				BuildLines();
 
-	GLuint				m_vertexBufferId;
+	GLuint				m_polygonVertexBufferId;
+	GLuint				m_aabbVertexBufferId;
 	size_t				m_index;
 
 	std::vector<Line>	m_lines;
+
+public:
+	std::shared_ptr<class CAxisAlignedBoundingBox> aabb;
 };
 
 typedef std::shared_ptr<CPolygon>	CPolygonPtr;
@@ -60,24 +67,33 @@ typedef std::shared_ptr<CPolygon>	CPolygonPtr;
 
 class CAxisAlignedBoundingBox
 {
-private:
-	float minx = FLT_MAX;
-	float maxx = FLT_MIN;
-	float miny = FLT_MAX;
-	float maxy = FLT_MIN;
+public:
+	Vec2 xrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
+	Vec2 yrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 
 public:
 	CAxisAlignedBoundingBox() = delete;
-	CAxisAlignedBoundingBox(const CPolygon& polygon)
+	CAxisAlignedBoundingBox(const class CPolygon& polygon)
 	{
+		Reset(polygon);
+	}
+
+	void Reset(const class CPolygon& polygon)
+	{
+		xrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
+		yrange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
+
 		for (auto& p : polygon.points)
 		{
-			minx = std::min(minx, p.x);
-			maxx = std::max(maxx, p.x);
-			miny = std::min(miny, p.y);
-			maxy = std::max(maxy, p.y);
+			Vec2 v = polygon.rotation * p;
+			xrange.x = Min(xrange.x, polygon.position.x + v.x);
+			xrange.y = Max(xrange.y, polygon.position.x + v.x);
+			yrange.x = Min(yrange.x, polygon.position.y + v.y);
+			yrange.y = Max(yrange.y, polygon.position.y + v.y);
 		}
 	}
 };
+
+
 
 #endif
