@@ -2,6 +2,8 @@
 #define _RENDERER_H_
 
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 #include "Timer.h"
 #include "Maths.h"
