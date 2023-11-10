@@ -25,6 +25,7 @@ struct SPolygonPair
 		if (!bXAxisIntersect)
 			return false;
 
+		// y axis
 		bool bYAxisIntersect = b.yrange.min >= a.yrange.min && b.yrange.min <= a.yrange.max ||
 			a.yrange.min >= b.yrange.min && a.yrange.min <= b.yrange.max;
 

@@ -60,13 +60,14 @@ void	CPhysicEngine::Step(float deltaTime)
 
 void	CPhysicEngine::CollisionBroadPhase()
 {
-	m_pairsToCheck.clear();
 	gVars->pWorld->ForEachPolygon([](CPolygonPtr poly) { poly->aabb->Reset(*poly); });
+	m_pairsToCheck.clear();
 	m_broadPhase->GetCollidingPairsToCheck(m_pairsToCheck);
 }
 
 void	CPhysicEngine::CollisionNarrowPhase()
 {
+	gVars->pWorld->ForEachPolygon([](CPolygonPtr poly) { poly->bCollisionWithOtherPolygon = false; });
 	m_collidingPairs.clear();
 	for (const SPolygonPair& pair : m_pairsToCheck)
 	{

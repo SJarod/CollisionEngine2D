@@ -38,7 +38,7 @@ public:
 	// if point is outside then returned distance is negative (and doesn't make sense)
 	bool				IsPointInside(const Vec2& point) const;
 
-	bool				(*CheckCollision)(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist) = nullptr;
+	bool				CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist);
 
 	// Physics
 	float				density;
@@ -56,10 +56,11 @@ private:
 	GLuint				m_aabbVertexBufferId;
 	size_t				m_index;
 
+public:
 	std::vector<Line>	m_lines;
 
-public:
 	std::shared_ptr<class CAxisAlignedBoundingBox> aabb;
+	bool bCollisionWithOtherPolygon = false;
 };
 
 typedef std::shared_ptr<CPolygon>	CPolygonPtr;
