@@ -8,79 +8,42 @@
 #include "PhysicEngine.h"
 
 
-// TODO : clean
-float Dot(const Vec2& a, const Vec2& b)
-{
-	return (a.x * b.x) + (a.y * b.y);
-}
-
-bool CheckRangeCollision(const Vec2& a, const Vec2& b)
-{
-	return b.min >= a.min && b.min <= a.max ||
-		a.min >= b.min && a.min <= b.max;
-}
-
-Vec2 RotateVec2(const Vec2& v, const float a)
-{
-	Vec2 out;
-	out.x = v.x * cosf(a) - v.y * sinf(a);
-	out.y = v.x * sinf(a) + v.y * cosf(a);
-	return out;
-}
-
-Vec2 GetPerpendicular(const Vec2& v)
-{
-	return { -v.y, v.x };
-}
 
 // narrow phase collision detection
 bool Analytical(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
 	return false;
 }
+bool AxisRangeCheck(const Line& axis, const CPolygon& a, const CPolygon& b)
+{
+	Vec2 per = (a.rotation * axis.dir).GetNormal();
+	Vec2 arange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
+	Vec2 brange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
+	for (auto& p : a.points)
+	{
+		float dot = per.Dot(a.position + a.rotation * p);
+		arange.min = std::min(arange.min, dot);
+		arange.max = std::max(arange.max, dot);
+	}
+	for (auto& p : b.points)
+	{
+		float dot = per.Dot(b.position + b.rotation * p);
+		brange.min = std::min(brange.min, dot);
+		brange.max = std::max(brange.max, dot);
+	}
+
+	return arange.CheckRangeCollision(brange);
+}
 bool SeparateAxisTheorem(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
-	// TODO : clean and optimize
 	for (auto& l : a.m_lines)
 	{
-		Vec2 per = GetPerpendicular(a.rotation * l.dir);
-		Vec2 arange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
-		Vec2 brange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
-		for (auto& p : a.points)
-		{
-			float dot = Dot(per, a.position + a.rotation * p);
-			arange.min = std::min(arange.min, dot);
-			arange.max = std::max(arange.max, dot);
-		}
-		for (auto& p : b.points)
-		{
-			float dot = Dot(per, b.position + b.rotation * p);
-			brange.min = std::min(brange.min, dot);
-			brange.max = std::max(brange.max, dot);
-		}
-
-		if (!CheckRangeCollision(arange, brange))
+		if (!AxisRangeCheck(l, a, b))
 			return false;
 	}
 	for (auto& l : b.m_lines)
 	{
-		Vec2 per = GetPerpendicular(b.rotation * l.dir);
-		Vec2 arange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
-		Vec2 brange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
-		for (auto& p : a.points)
-		{
-			float dot = Dot(per, a.position + a.rotation * p);
-			arange.min = std::min(arange.min, dot);
-			arange.max = std::max(arange.max, dot);
-		}
-		for (auto& p : b.points)
-		{
-			float dot = Dot(per, b.position + b.rotation * p);
-			brange.min = std::min(brange.min, dot);
-			brange.max = std::max(brange.max, dot);
-		}
-
-		if (!CheckRangeCollision(arange, brange))
+		if (!AxisRangeCheck(l, a, b))
 			return false;
 	}
 
@@ -165,22 +128,22 @@ void CPolygon::Draw() const
 	glPopMatrix();
 }
 
-size_t	CPolygon::GetIndex() const
+size_t CPolygon::GetIndex() const
 {
 	return m_index;
 }
 
-Vec2	CPolygon::TransformPoint(const Vec2& point) const
+Vec2 CPolygon::TransformPoint(const Vec2& point) const
 {
 	return position + rotation * point;
 }
 
-Vec2	CPolygon::InverseTransformPoint(const Vec2& point) const
+Vec2 CPolygon::InverseTransformPoint(const Vec2& point) const
 {
 	return rotation.GetInverse() * (point - position);
 }
 
-bool	CPolygon::IsPointInside(const Vec2& point) const
+bool CPolygon::IsPointInside(const Vec2& point) const
 {
 	float maxDist = -FLT_MAX;
 

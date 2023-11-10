@@ -49,111 +49,130 @@ struct Vec2
 
 	Vec2(float _x, float _y) : x(_x), y(_y){}
 
-	Vec2 operator+(const Vec2& rhs) const
+	inline Vec2 operator+(const Vec2& rhs) const
 	{
 		return Vec2(x + rhs.x, y + rhs.y);
 	}
 
-	Vec2& operator+=(const Vec2& rhs)
+	inline Vec2& operator+=(const Vec2& rhs)
 	{
 		x += rhs.x;
 		y += rhs.y;
 		return *this;
 	}
 
-	Vec2 operator-(const Vec2& rhs) const
+	inline Vec2 operator-(const Vec2& rhs) const
 	{
 		return Vec2(x - rhs.x, y - rhs.y);
 	}
 
-	Vec2& operator-=(const Vec2& rhs)
+	inline Vec2& operator-=(const Vec2& rhs)
 	{
 		x -= rhs.x;
 		y -= rhs.y;
 		return *this;
 	}
 
-	Vec2 operator*(float factor) const
+	inline Vec2 operator*(float factor) const
 	{
 		return Vec2(x * factor, y * factor);
 	}
 
-	Vec2& operator*=(float factor)
+	inline Vec2& operator*=(float factor)
 	{
 		*this = Vec2(x * factor, y * factor);
 		return *this;
 	}
 
-	Vec2 operator/(float factor) const
+	inline Vec2 operator/(float factor) const
 	{
 		return Vec2(x / factor, y / factor);
 	}
 
-	Vec2& operator/=(float factor)
+	inline Vec2& operator/=(float factor)
 	{
 		*this = Vec2(x / factor, y / factor);
 		return *this;
 	}
 
-	float operator|(const Vec2& rhs) const
+	inline float operator|(const Vec2& rhs) const
 	{
 		return x * rhs.x + y * rhs.y;
 	}
 
-	float operator^(const Vec2& rhs) const
+	inline float operator^(const Vec2& rhs) const
 	{
 		return x * rhs.y - y * rhs.x;
 	}
 
-	float GetLength() const
+	inline float GetLength() const
 	{
 		return sqrtf(x*x + y*y);
 	}
 
-	float GetRange() const
+	inline float GetRange() const
 	{
 		return max - min;
 	}
 
-	float GetCenter() const
+	inline float GetCenter() const
 	{
 		return (x + y) / 2.f;
 	}
 
-	float GetSqrLength() const
+	inline float GetSqrLength() const
 	{
 		return x*x + y*y;
 	}
 
-	void	Normalize()
+	inline void	Normalize()
 	{
 		float length = GetLength();
 		x /= length;
 		y /= length;
 	}
 
-	Vec2	Normalized() const
+	inline Vec2	Normalized() const
 	{
 		Vec2 res = *this;
 		res.Normalize();
 		return res;
 	}
 
-	void Reflect(Vec2 normal, float elasticity = 1.0f)
+	inline void Reflect(Vec2 normal, float elasticity = 1.0f)
 	{
 		*this = *this - normal * (1.0f + elasticity) * (*this | normal);
 	}
 
-	Vec2 GetNormal() const
+	inline Vec2 GetNormal() const
 	{
 		return Vec2(-y, x);
 	}
 
-	float Angle(const Vec2& to)
+	inline float Angle(const Vec2& to)
 	{
 		float cosAngle = Clamp(Normalized() | to.Normalized(), -1.0f, 1.0f);
 		float angle = RAD2DEG(acosf(cosAngle)) * Sign(*this ^ to);
 		return angle;
+	}
+
+	inline bool CheckRangeCollision(const Vec2& v)
+	{
+		return v.min >= min && v.min <= max ||
+			min >= v.min && min <= v.max;
+	}
+
+	inline Vec2 Rotate(const float a)
+	{
+		Vec2 out;
+		out.x = x * cosf(a) - y * sinf(a);
+		out.y = x * sinf(a) + y * cosf(a);
+		return out;
+	}
+
+	inline float Dot(const Vec2& v)
+	{
+		return (x * v.x) + (y * v.y);
 	}
 };
 
@@ -231,6 +250,8 @@ struct Line
 		return point + dir * ((pt - point) | dir);
 	}
 };
+
+
 
 
 
