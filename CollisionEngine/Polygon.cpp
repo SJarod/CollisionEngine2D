@@ -14,20 +14,20 @@ bool Analytical(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colN
 {
 	return false;
 }
-bool AxisRangeCheck(const Line& axis, const CPolygon& a, const CPolygon& b)
+bool AxisRangeCheck(const Line& axis, const CPolygon& first, const CPolygon& second)
 {
-	Vec2 per = (a.rotation * axis.dir).GetNormal();
+	Vec2 per = (first.rotation * axis.dir).GetNormal();
 	Vec2 arange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
 	Vec2 brange = { (std::numeric_limits<float>::max)(), (std::numeric_limits<float>::lowest)() };
-	for (auto& p : a.points)
+	for (auto& p : first.points)
 	{
-		float dot = per.Dot(a.position + a.rotation * p);
+		float dot = per.Dot(first.position + first.rotation * p);
 		arange.min = std::min(arange.min, dot);
 		arange.max = std::max(arange.max, dot);
 	}
-	for (auto& p : b.points)
+	for (auto& p : second.points)
 	{
-		float dot = per.Dot(b.position + b.rotation * p);
+		float dot = per.Dot(second.position + second.rotation * p);
 		brange.min = std::min(brange.min, dot);
 		brange.max = std::max(brange.max, dot);
 	}
@@ -43,7 +43,7 @@ bool SeparateAxisTheorem(const CPolygon& a, const CPolygon& b, Vec2& colPoint, V
 	}
 	for (auto& l : b.m_lines)
 	{
-		if (!AxisRangeCheck(l, a, b))
+		if (!AxisRangeCheck(l, b, a))
 			return false;
 	}
 
