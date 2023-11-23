@@ -48,6 +48,7 @@ public:
 	}
 	size_t		GetPolygonCount() const;
 	CPolygonPtr&	GetPolygon(size_t index);
+	inline const std::vector<CPolygonPtr>& GetPolygonArray() const { return m_polygons; }
 
 	template<typename TFunctor>
 	void	ForEachBehavior(TFunctor functor)

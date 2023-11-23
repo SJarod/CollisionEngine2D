@@ -9,6 +9,7 @@
 
 #include "BroadPhase.h"
 #include "BroadPhaseBrut.h"
+#include "BroadPhaseAABBIntersection.h"
 #include "BroadPhaseSweepAndPrune.h"
 
 
@@ -20,6 +21,7 @@ void	CPhysicEngine::Reset()
 	m_active = true;
 
 	//m_broadPhase = new CBroadPhaseBrut();
+	//m_broadPhase = new CBroadPhaseAABBIntersection();
 	m_broadPhase = new CBroadPhaseSweepAndPrune();
 }
 
@@ -74,7 +76,7 @@ void	CPhysicEngine::CollisionNarrowPhase()
 		SCollision collision;
 		collision.polyA = pair.polyA;
 		collision.polyB = pair.polyB;
-		if (pair.polyA->CheckCollision(*(pair.polyB), collision.point, collision.normal, collision.distance)) 
+		if (pair.polyA->CheckCollision(*(pair.polyB), collision.point, collision.normal, collision.distance))
 		{
 			m_collidingPairs.push_back(collision);
 		}

@@ -177,6 +177,7 @@ xcopy /Y $(SolutionDir)Libs\glew\bin\Release\Win32\glew32.dll $(SolutionDir)$(Co
     <ClInclude Include="Behaviors\SphereSimulation.h" />
     <ClInclude Include="BroadPhase.h" />
     <ClInclude Include="BroadPhaseBrut.h" />
+    <ClInclude Include="BroadPhaseSweepAndPrune.h" />
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="PhysicEngine.h" />
@@ -191,7 +192,7 @@ xcopy /Y $(SolutionDir)Libs\glew\bin\Release\Win32\glew32.dll $(SolutionDir)$(Co
     <ClInclude Include="SDLRenderWindow.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="World.h" />
-    <ClInclude Include="BroadPhaseSweepAndPrune.h" />
+    <ClInclude Include="BroadPhaseAABBIntersection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GlobaleVariables.cpp" />

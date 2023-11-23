@@ -76,7 +76,7 @@ CPolygonPtr		CWorld::AddRandomPoly(const SRandomPolyParams& params)
 
 CPolygonPtr		CWorld::AddPolygon()
 {
-	CPolygonPtr poly( new CPolygon(m_polygons.size()) );
+	CPolygonPtr poly(new CPolygon(m_polygons.size()));
 	m_polygons.push_back(poly);
 	return poly;
 }
@@ -115,14 +115,14 @@ size_t	CWorld::GetPolygonCount() const
 	return m_polygons.size();
 }
 
-CPolygonPtr&		CWorld::GetPolygon(size_t index)
+CPolygonPtr& CWorld::GetPolygon(size_t index)
 {
 	return m_polygons[index];
 }
 
 void	CWorld::Update(float frameTime)
 {
-	for(CBehaviorPtr& behavior : m_behaviors)
+	for (CBehaviorPtr& behavior : m_behaviors)
 	{
 		behavior->Update(frameTime);
 	}
