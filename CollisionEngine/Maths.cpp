@@ -14,5 +14,5 @@ float Random(float from, float to)
 
 size_t Random(size_t from, size_t to)
 {
-	return from + (to - from) * ((rand()) / (RAND_MAX));
+	return from + ((rand()) / (RAND_MAX / (to - from)));
 }

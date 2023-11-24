@@ -22,12 +22,12 @@ protected:
 		float height = gVars->pRenderer->GetWorldHeight();
 
 		SRandomPolyParams params;
-		params.minRadius = 1.0f;
-		params.maxRadius = 1.0f;
+		params.minRadius = 0.2f;
+		params.maxRadius = 1.f;
 		params.minBounds = Vec2(-width * 0.5f + params.maxRadius * 3.0f, -height * 0.5f + params.maxRadius * 3.0f);
 		params.maxBounds = params.minBounds * -1.0f;
 		// TODO : repair random poly generation
-		params.minPoints = 5;
+		params.minPoints = 3;
 		params.maxPoints = 9;
 		params.minSpeed = 1.0f;
 		params.maxSpeed = 3.0f;
