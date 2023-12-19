@@ -1,3 +1,5 @@
+#include <deque>
+
 #include "GlobalVariables.h"
 
 
@@ -7,6 +9,8 @@
 
 #include "PhysicEngine.h"
 
+
+#define GJK_MAX_ITERATION 99
 
 
 // narrow phase collision detection
@@ -49,8 +53,102 @@ bool SeparateAxisTheorem(const CPolygon& a, const CPolygon& b, Vec2& colPoint, V
 
 	return true;
 }
-bool GJK(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
+bool PointLineIntersection(Vec2 p1, Vec2 p2, Vec2 v)
 {
+	Vec2 a = p2 - p1;
+	Vec2 b = v - p1;
+	if (a.GetSqrLength() == 0.f || b.GetSqrLength() == 0.f)
+		return false;
+
+	return (a.Dot(b) / (a.GetLength() * b.GetLength())) == 1.f;
+}
+// simplex origin
+Vec2 SimplexOrigin(const std::deque<Vec2>& simplex)
+{
+	Vec2 sum = Vec2(0.f, 0.f);
+	for (const Vec2& v : simplex)
+	{
+		sum += v;
+	}
+	return sum / simplex.size();
+}
+// simplex normal (undefined direction)
+Vec2 SimplexDirection(const std::deque<Vec2>& simplex)
+{
+	// AB = B - A
+	Vec2 a = *simplex.rbegin();
+	for (auto it = simplex.rbegin() + 1; it != simplex.rend(); ++it)
+	{
+		a -= *it;
+	}
+	return Vec2{ -a.y, a.x };
+}
+// simplex intersection (with origin by default)
+bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f, 0.f })
+{
+	float sign = 0.f;
+	for (int i = 0; i < simplex.size(); ++i)
+	{
+		Vec2 a = simplex[i];
+		Vec2 b = simplex[(i + 1) % simplex.size()];
+		Vec2 ab = b - a;
+		Vec2 n = { -ab.y, ab.x };
+
+		Vec2 ap = p - a;
+		float s = n.Dot(ap);
+		if (s == 0.f)
+			continue;
+		s /= std::abs(s);
+		if (sign == 0.f)
+			sign = s;
+		else if (s != sign)
+			return false;
+	}
+	return true;
+}
+bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
+{
+	Vec2 dir0 = Vec2(1.f, 0.f);
+	Vec2 supportA0 = a.SupportFunction(dir0);
+	Vec2 supportB0 = b.SupportFunction(-dir0);
+	// minkowski difference
+	Vec2 diffA = supportA0 - supportB0;
+
+	Vec2 dir1 = -diffA;
+	Vec2 supportA1 = a.SupportFunction(dir1);
+	Vec2 supportB1 = b.SupportFunction(-dir1);
+	Vec2 diffB = supportA1 - supportB1;
+
+	Vec2 line = diffB - diffA;
+	Vec2 toOrig = -diffA;
+	float bLen = toOrig.GetLength();
+	float aCosTheta = line.Dot(toOrig) / bLen;
+	if (aCosTheta < bLen)
+		return false;
+
+
+	std::deque<Vec2> simplex;
+	simplex.push_back(diffA);
+	simplex.push_back(diffB);
+
+
+	for (int i = 0; i < GJK_MAX_ITERATION; ++i)
+	{
+		Vec2 dir = SimplexDirection(simplex).Normalized();
+		Vec2 supportA = a.SupportFunction(dir);
+		Vec2 supportB = b.SupportFunction(-dir);
+		// new minkowski difference
+		Vec2 nmd = supportA - supportB;
+
+		simplex.push_back(nmd);
+
+		if (SimplexIntersection(simplex))
+			return true;
+
+		simplex.pop_front();
+	}
+
+
 	return false;
 }
 
@@ -157,9 +255,27 @@ bool CPolygon::IsPointInside(const Vec2& point) const
 	return maxDist <= 0.f;
 }
 
+Vec2 CPolygon::SupportFunction(const Vec2& dir) const
+{
+	Vec2 support;
+	float maxProjection = std::numeric_limits<float>::min();
+
+	for (const auto& p : points)
+	{
+		float projection = p.Dot(dir);
+		if (projection > maxProjection)
+		{
+			maxProjection = projection;
+			support = p;
+		}
+	}
+
+	return position + support;
+}
+
 bool CPolygon::CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
-	if (SeparateAxisTheorem(*this, poly, colPoint, colNormal, colDist))
+	if (GilbertJohnsonKeerthi(*this, poly, colPoint, colNormal, colDist))
 	{
 		bCollisionWithOtherPolygon = true;
 		poly.bCollisionWithOtherPolygon = true;

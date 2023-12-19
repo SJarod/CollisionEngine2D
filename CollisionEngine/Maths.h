@@ -61,6 +61,11 @@ struct Vec2
 		return *this;
 	}
 
+	inline Vec2 operator-() const
+	{
+		return Vec2(-x, -y);
+	}
+
 	inline Vec2 operator-(const Vec2& rhs) const
 	{
 		return Vec2(x - rhs.x, y - rhs.y);
@@ -170,7 +175,7 @@ struct Vec2
 		return out;
 	}
 
-	inline float Dot(const Vec2& v)
+	inline float Dot(const Vec2& v) const
 	{
 		return (x * v.x) + (y * v.y);
 	}

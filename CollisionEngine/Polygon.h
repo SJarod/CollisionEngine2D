@@ -38,6 +38,7 @@ public:
 	// if point is outside then returned distance is negative (and doesn't make sense)
 	bool				IsPointInside(const Vec2& point) const;
 
+	Vec2				SupportFunction(const Vec2& dir) const;
 	bool				CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist);
 
 	// Physics
@@ -63,7 +64,10 @@ public:
 	bool bCollisionWithOtherPolygon = false;
 };
 
+
 typedef std::shared_ptr<CPolygon>	CPolygonPtr;
+
+
 
 
 class CAxisAlignedBoundingBox
