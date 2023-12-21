@@ -1,4 +1,5 @@
 #include <deque>
+#include <cassert>
 
 #include "GlobalVariables.h"
 
@@ -10,7 +11,8 @@
 #include "PhysicEngine.h"
 
 
-#define GJK_MAX_ITERATION 99
+#define GJK_MAX_ITERATION 5
+#define GJK_K 3
 
 
 // narrow phase collision detection
@@ -75,13 +77,19 @@ Vec2 SimplexOrigin(const std::deque<Vec2>& simplex)
 // simplex normal (undefined direction)
 Vec2 SimplexDirection(const std::deque<Vec2>& simplex)
 {
+	assert(simplex.size() < GJK_K);
+
 	// AB = B - A
 	Vec2 a = *simplex.rbegin();
 	for (auto it = simplex.rbegin() + 1; it != simplex.rend(); ++it)
 	{
 		a -= *it;
 	}
-	return Vec2{ -a.y, a.x };
+	Vec2 dir = Vec2{ -a.y, a.x }.Normalized();
+	
+	float sign = (-a).Dot(dir);
+	sign = sign < 0.f ? 1.f : -1.f;
+	return dir * sign;
 }
 // simplex intersection (with origin by default)
 bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f, 0.f })
@@ -92,12 +100,10 @@ bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f,
 		Vec2 a = simplex[i];
 		Vec2 b = simplex[(i + 1) % simplex.size()];
 		Vec2 ab = b - a;
-		Vec2 n = { -ab.y, ab.x };
+		Vec2 n = Vec2{ -ab.y, ab.x }.Normalized();
 
-		Vec2 ap = p - a;
+		Vec2 ap = (p - a).Normalized();
 		float s = n.Dot(ap);
-		if (s == 0.f)
-			continue;
 		s /= std::abs(s);
 		if (sign == 0.f)
 			sign = s;
@@ -112,42 +118,38 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint,
 	Vec2 supportA0 = a.SupportFunction(dir0);
 	Vec2 supportB0 = b.SupportFunction(-dir0);
 	// minkowski difference
-	Vec2 diffA = supportA0 - supportB0;
-
-	Vec2 dir1 = -diffA;
-	Vec2 supportA1 = a.SupportFunction(dir1);
-	Vec2 supportB1 = b.SupportFunction(-dir1);
-	Vec2 diffB = supportA1 - supportB1;
-
-	Vec2 line = diffB - diffA;
-	Vec2 toOrig = -diffA;
-	float bLen = toOrig.GetLength();
-	float aCosTheta = line.Dot(toOrig) / bLen;
-	if (aCosTheta < bLen)
-		return false;
-
+	Vec2 diff0 = supportA0 - supportB0;
 
 	std::deque<Vec2> simplex;
-	simplex.push_back(diffA);
-	simplex.push_back(diffB);
+	simplex.push_back(diff0);
 
-
+	Vec2 dir = -diff0.Normalized();
 	for (int i = 0; i < GJK_MAX_ITERATION; ++i)
 	{
-		Vec2 dir = SimplexDirection(simplex).Normalized();
 		Vec2 supportA = a.SupportFunction(dir);
 		Vec2 supportB = b.SupportFunction(-dir);
 		// new minkowski difference
-		Vec2 nmd = supportA - supportB;
+		Vec2 diff = supportA - supportB;
 
-		simplex.push_back(nmd);
+
+		// does line pass origin ?
+		Vec2 p = *(simplex.end() - 1); // TODO : take intersection point between dir and simplex
+		Vec2 va = diff - p;
+		Vec2 vb = -p;
+		float bLen = vb.GetLength();
+		float aLenCosTheta = va.Dot(vb) / bLen;
+		//if (aLenCosTheta < bLen)
+		//	return false;
+		//else
+			simplex.push_back(diff);
 
 		if (SimplexIntersection(simplex))
 			return true;
 
-		simplex.pop_front();
+		if (simplex.size() == GJK_K)
+			simplex.pop_front();
+		dir = SimplexDirection(simplex);
 	}
-
 
 	return false;
 }
@@ -262,11 +264,12 @@ Vec2 CPolygon::SupportFunction(const Vec2& dir) const
 
 	for (const auto& p : points)
 	{
-		float projection = p.Dot(dir);
+		Vec2 pp = rotation * p;
+		float projection = pp.Dot(dir);
 		if (projection > maxProjection)
 		{
 			maxProjection = projection;
-			support = p;
+			support = pp;
 		}
 	}
 
