@@ -106,16 +106,16 @@ Vec2 SimplexDirection(const std::deque<Vec2>& simplex)
 	assert(simplex.size() < GJK_K);
 
 	// AB = B - A
-	Vec2 a = *simplex.rbegin();
-	Vec2 o = a;
+	Vec2 d = *simplex.rbegin();
+	Vec2 a = d;
 	for (auto it = simplex.rbegin() + 1; it != simplex.rend(); ++it)
 	{
-		a -= *it;
+		d -= *it;
 	}
-	Vec2 dir = Vec2{ -a.y, a.x }.Normalized();
+	Vec2 dir = Vec2{ -d.y, d.x }.Normalized();
 
 	// check if found direction is pointing towards the origin
-	float sign = (-o).Dot(dir);
+	float sign = (-a).Dot(dir);
 	sign = sign < 0.f ? -1.f : 1.f;
 	return dir * sign;
 }
