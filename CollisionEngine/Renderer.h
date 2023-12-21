@@ -39,6 +39,7 @@ public:
 	void	DisplayText(const std::string& text, int x, int y);
 	void	DisplayTextWorld(const std::string& text, const Vec2& worldPos);
 	void	DrawLine(const Vec2& from, const Vec2& to, float r, float g, float b);
+	void	DrawPoint(const Vec2& v, float r, float g, float b);
 
 	Vec2	ScreenToWorldPos(const Vec2& pos) const;
 	Vec2	WorldToScreenPos(const Vec2& pos) const;

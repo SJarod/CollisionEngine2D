@@ -65,6 +65,21 @@ void CRenderer::DrawLine(const Vec2& from, const Vec2& to, float r, float g, flo
 	glEnd();
 }
 
+void CRenderer::DrawPoint(const Vec2& v, float r, float g, float b)
+{
+	glColor3f(r, g, b);
+	glLineWidth(3.f);
+	glBegin(GL_LINES);
+	glVertex3f(v.x, 0.5f + v.y, -1.f);
+	glVertex3f(v.x, -0.5f + v.y, -1.f);
+	glEnd();
+	glBegin(GL_LINES);
+	glVertex3f(0.5f + v.x, v.y, -1.f);
+	glVertex3f(-0.5f + v.x, v.y, -1.f);
+	glEnd();
+	glLineWidth(1.f);
+}
+
 Vec2 CRenderer::ScreenToWorldPos(const Vec2& pos) const
 {
 	float width = (float)gVars->pRenderWindow->GetWidth();
