@@ -15,6 +15,32 @@
 #define GJK_K 3
 
 
+void DrawLine(const Vec2& from, const Vec2& to, float r, float g, float b)
+{
+	glColor3f(r, g, b);
+	glBegin(GL_LINES);
+	glVertex3f(from.x, from.y, -1.0f);
+	glVertex3f(to.x, to.y, -1.0f);
+	glEnd();
+}
+
+void DrawPoint(const Vec2& v, float r, float g, float b)
+{
+	glColor3f(r, g, b);
+	glLineWidth(3.f);
+	glBegin(GL_LINES);
+	glVertex3f(v.x, 0.5f + v.y, -1.f);
+	glVertex3f(v.x, -0.5f + v.y, -1.f);
+	glEnd();
+	glBegin(GL_LINES);
+	glVertex3f(0.5f + v.x, v.y, -1.f);
+	glVertex3f(-0.5f + v.x, v.y, -1.f);
+	glEnd();
+	glLineWidth(1.f);
+}
+
+
+
 // narrow phase collision detection
 bool Analytical(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
@@ -81,14 +107,16 @@ Vec2 SimplexDirection(const std::deque<Vec2>& simplex)
 
 	// AB = B - A
 	Vec2 a = *simplex.rbegin();
+	Vec2 o = a;
 	for (auto it = simplex.rbegin() + 1; it != simplex.rend(); ++it)
 	{
 		a -= *it;
 	}
 	Vec2 dir = Vec2{ -a.y, a.x }.Normalized();
-	
-	float sign = (-a).Dot(dir);
-	sign = sign < 0.f ? 1.f : -1.f;
+
+	// check if found direction is pointing towards the origin
+	float sign = (-o).Dot(dir);
+	sign = sign < 0.f ? -1.f : 1.f;
 	return dir * sign;
 }
 // simplex intersection (with origin by default)
@@ -114,11 +142,20 @@ bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f,
 }
 bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
+	if (gVars->bDebug)
+		DrawPoint({ 0.f, 0.f }, 0.f, 0.f, 0.f);
+
 	Vec2 dir0 = Vec2(1.f, 0.f);
 	Vec2 supportA0 = a.SupportFunction(dir0);
 	Vec2 supportB0 = b.SupportFunction(-dir0);
 	// minkowski difference
 	Vec2 diff0 = supportA0 - supportB0;
+
+	if (gVars->bDebug)
+	{
+		DrawPoint(supportA0, 0.f, 1.f, 0.f);
+		DrawPoint(supportB0, 0.f, 0.f, 1.f);
+	}
 
 	std::deque<Vec2> simplex;
 	simplex.push_back(diff0);
@@ -141,7 +178,20 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint,
 		//if (aLenCosTheta < bLen)
 		//	return false;
 		//else
-			simplex.push_back(diff);
+		simplex.push_back(diff);
+
+		if (gVars->bDebug)
+			if (simplex.size() == 3)
+			{
+				DrawLine(simplex[0], simplex[1], 1.f, 0.f, 0.f);
+				DrawLine(simplex[1], simplex[2], 1.f, 0.f, 0.f);
+				DrawLine(simplex[2], simplex[0], 1.f, 0.f, 0.f);
+			}
+		if (gVars->bDebug)
+			for (const Vec2& a : simplex)
+			{
+				DrawPoint(a, (float)(i + 1) / (float)GJK_MAX_ITERATION, 0.f, 0.f);
+			}
 
 		if (SimplexIntersection(simplex))
 			return true;
