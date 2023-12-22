@@ -57,6 +57,10 @@ public:
 						pairsToCheck.push_back(p);
 					}
 				}
+				else
+				{
+					break;
+				}
 			}
 		}
 	}
