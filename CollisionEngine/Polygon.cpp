@@ -170,15 +170,18 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint,
 
 
 		// does line pass origin ?
-		Vec2 p = *(simplex.end() - 1); // TODO : take intersection point between dir and simplex
-		Vec2 va = diff - p;
-		Vec2 vb = -p;
-		float bLen = vb.GetLength();
-		float aLenCosTheta = va.Dot(vb) / bLen;
+		// TODO : take intersection point between dir and simplex (line line intersection)
+		//Vec2 p = *(simplex.end() - 1);
+		//Vec2 va = diff - p;
+		//Vec2 vb = -p;
+		//float bLen = vb.GetLength();
+		//float aLenCosTheta = va.Dot(vb) / bLen;
 		//if (aLenCosTheta < bLen)
-		//	return false;
-		//else
-		simplex.push_back(diff);
+		if (dir.Dot(-diff) >= 0.f)
+			return false;
+		else
+			simplex.push_back(diff);
+
 
 		if (gVars->bDebug)
 			if (simplex.size() == 3)
