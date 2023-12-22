@@ -15,6 +15,15 @@
 #define GJK_K 3
 
 
+struct CollisionInfoT
+{
+	Vec2 a;
+	Vec2 b;
+	Vec2 normal;
+	float distance;
+};
+
+
 void DrawLine(const Vec2& from, const Vec2& to, float r, float g, float b)
 {
 	glColor3f(r, g, b);
@@ -46,6 +55,7 @@ bool Analytical(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colN
 {
 	return false;
 }
+
 bool AxisRangeCheck(const Line& axis, const CPolygon& first, const CPolygon& second)
 {
 	Vec2 per = (first.rotation * axis.dir).GetNormal();
@@ -81,6 +91,7 @@ bool SeparateAxisTheorem(const CPolygon& a, const CPolygon& b, Vec2& colPoint, V
 
 	return true;
 }
+
 bool PointLineIntersection(Vec2 p1, Vec2 p2, Vec2 v)
 {
 	Vec2 a = p2 - p1;
@@ -140,7 +151,7 @@ bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f,
 	}
 	return true;
 }
-bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint, Vec2& colNormal, float& colDist)
+bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, std::deque<Vec2>& simplex)
 {
 	if (gVars->bDebug)
 		DrawPoint({ 0.f, 0.f }, 0.f, 0.f, 0.f);
@@ -157,7 +168,6 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint,
 		DrawPoint(supportB0, 0.f, 0.f, 1.f);
 	}
 
-	std::deque<Vec2> simplex;
 	simplex.push_back(diff0);
 
 	Vec2 dir = -diff0.Normalized();
@@ -205,6 +215,90 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, Vec2& colPoint,
 	}
 
 	return false;
+}
+
+CollisionInfoT ExpandingPolytopeAlgorithm2D(const CPolygon& a, const CPolygon& b, const std::deque<Vec2>& simplex)
+{
+	assert(simplex.size() == GJK_K);
+
+	auto polytope = simplex;
+
+	constexpr const float fmax = std::numeric_limits<float>::max();
+	constexpr const float fepsilon = 0.001f;
+
+
+	float minDistance = fmax;
+	Vec2 minNormal = Vec2{ 0.f, 0.f };
+	int minIndex = 0;
+
+	Vec2 A, B;
+
+	bool test = false;
+	while (minDistance == fmax)
+	{
+		for (int i = 0; i < polytope.size(); ++i)
+		{
+			int j = (i + 1) % polytope.size();
+
+			Vec2 a = polytope[i];
+			Vec2 b = polytope[j];
+			Vec2 ab = b - a;
+			Vec2 n = Vec2{ -ab.y, ab.x }.Normalized();
+
+			float d = n.Dot(a);
+			if (d < 0.f)
+			{
+				d = -d;
+				n = -n;
+			}
+
+			if (d < minDistance)
+			{
+				minDistance = d;
+				minNormal = n;
+				minIndex = j;
+			}
+		}
+
+		Vec2 supportA = a.SupportFunction(minNormal);
+		Vec2 supportB = b.SupportFunction(-minNormal);
+		Vec2 support = supportA - supportB;
+		float sDistance = minNormal.Dot(support);
+
+		A = supportA;
+		B = supportB;
+
+		if (std::fabsf(sDistance - minDistance) > fepsilon)
+		{
+			minDistance = fmax;
+			polytope.insert(polytope.begin() + minIndex, support);
+		}
+		if (sDistance < 0.f)
+			test = true;
+	}
+
+
+	// compute on smallest polygon
+	const CPolygon& smallest = a.points.size() <= b.points.size() ? a : b;
+	bool bSmallest = false;
+	// find on which polygon is the normal computed
+	for (int i = 0; i < smallest.points.size(); ++i)
+	{
+		int j = (i + 1) % smallest.points.size();
+
+		Vec2 a = smallest.points[i];
+		Vec2 b = smallest.points[j];
+		Vec2 ab = b - a;
+		if (ab.Dot(minNormal) == 0.f)
+		{
+			bSmallest = true;
+			break;
+		}
+	}
+	if (bSmallest)
+		return { B, A, minNormal, minDistance };
+	else
+		return { A, B, minNormal, minDistance };
 }
 
 
@@ -331,10 +425,22 @@ Vec2 CPolygon::SupportFunction(const Vec2& dir) const
 
 bool CPolygon::CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
 {
-	if (GilbertJohnsonKeerthi(*this, poly, colPoint, colNormal, colDist))
+	std::deque<Vec2> simplex;
+	if (GilbertJohnsonKeerthi(*this, poly, simplex))
 	{
 		bCollisionWithOtherPolygon = true;
 		poly.bCollisionWithOtherPolygon = true;
+
+		auto info = ExpandingPolytopeAlgorithm2D(*this, poly, simplex);
+		Vec2 p = SupportFunction(info.normal);
+		if (gVars->bDebug)
+		{
+			DrawPoint(info.a, 1.f, 0.f, 1.f);
+			DrawPoint(info.b, 1.f, 1.f, 0.f);
+		}
+		colPoint = info.a;
+		colNormal = info.normal;
+		colDist = info.distance;
 	}
 	return bCollisionWithOtherPolygon;
 }
