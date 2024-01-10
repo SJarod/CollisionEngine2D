@@ -151,14 +151,14 @@ bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f,
 	}
 	return true;
 }
-bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, std::deque<Vec2>& simplex)
+bool GilbertJohnsonKeerthi(const CPolygon& polyA, const CPolygon& polyB, std::deque<Vec2>& simplex)
 {
 	if (gVars->bDebug)
 		DrawPoint({ 0.f, 0.f }, 0.f, 0.f, 0.f);
 
 	Vec2 dir0 = Vec2(1.f, 0.f);
-	Vec2 supportA0 = a.SupportFunction(dir0);
-	Vec2 supportB0 = b.SupportFunction(-dir0);
+	Vec2 supportA0 = polyA.SupportFunction(dir0);
+	Vec2 supportB0 = polyB.SupportFunction(-dir0);
 	// minkowski difference
 	Vec2 diff0 = supportA0 - supportB0;
 
@@ -173,44 +173,77 @@ bool GilbertJohnsonKeerthi(const CPolygon& a, const CPolygon& b, std::deque<Vec2
 	Vec2 dir = -diff0.Normalized();
 	for (int i = 0; i < GJK_MAX_ITERATION; ++i)
 	{
-		Vec2 supportA = a.SupportFunction(dir);
-		Vec2 supportB = b.SupportFunction(-dir);
+		Vec2 supportA = polyA.SupportFunction(dir);
+		Vec2 supportB = polyB.SupportFunction(-dir);
 		// new minkowski difference
 		Vec2 diff = supportA - supportB;
 
 
 		// does line pass origin ?
+
+#if 0
 		// TODO : take intersection point between dir and simplex (line line intersection)
-		//Vec2 p = *(simplex.end() - 1);
-		//Vec2 va = diff - p;
-		//Vec2 vb = -p;
-		//float bLen = vb.GetLength();
-		//float aLenCosTheta = va.Dot(vb) / bLen;
-		//if (aLenCosTheta < bLen)
+		Vec2 p = *(simplex.end() - 1);
+		Vec2 va = diff - p;
+		Vec2 vb = -p;
+		float bLen = vb.GetLength();
+		float aLenCosTheta = va.Dot(vb) / bLen;
+		if (aLenCosTheta < bLen)
+#else
 		if (dir.Dot(-diff) >= 0.f)
 			return false;
 		else
 			simplex.push_back(diff);
-
+#endif
 
 		if (gVars->bDebug)
+		{
 			if (simplex.size() == 3)
 			{
 				DrawLine(simplex[0], simplex[1], 1.f, 0.f, 0.f);
 				DrawLine(simplex[1], simplex[2], 1.f, 0.f, 0.f);
 				DrawLine(simplex[2], simplex[0], 1.f, 0.f, 0.f);
 			}
+		}
 		if (gVars->bDebug)
-			for (const Vec2& a : simplex)
+		{
+			int ii = 1;
+			for (const Vec2& s : simplex)
 			{
-				DrawPoint(a, (float)(i + 1) / (float)GJK_MAX_ITERATION, 0.f, 0.f);
+				DrawPoint(s, ii++ / (float)simplex.size(), 0.f, 0.f);
 			}
+		}
 
 		if (SimplexIntersection(simplex))
 			return true;
 
+		// find oldest point with segment furthest distance from origin
+		// and remove from simplex
 		if (simplex.size() == GJK_K)
-			simplex.pop_front();
+		{
+			// TODO : make loop instead of "+1" and "+2"
+			const Vec2& a = *simplex.begin();
+			const Vec2& b = *(simplex.begin() + 1);
+			const Vec2& c = *(simplex.begin() + 2);
+			
+			Vec2 ca = a - c;
+			Vec2 cb = b - c;
+			Vec2 co = -c;
+
+			float dota = co.Dot(ca);
+			float thetaa = std::acosf(dota / (co.GetLength() * ca.GetLength()));
+			float da = co.GetLength() * std::sinf(thetaa);
+
+			float dotb = co.Dot(cb);
+			float thetab = std::acosf(dotb / (co.GetLength() * cb.GetLength()));
+			float db = co.GetLength() * std::sinf(thetab);
+
+			if (da < db)
+				simplex.erase(simplex.begin() + 1);
+			else
+				simplex.erase(simplex.begin());
+		}
+
 		dir = SimplexDirection(simplex);
 	}
 
