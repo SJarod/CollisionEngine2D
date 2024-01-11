@@ -225,7 +225,7 @@ bool GilbertJohnsonKeerthi(const CPolygon& polyA, const CPolygon& polyB, std::de
 			const Vec2& a = *simplex.begin();
 			const Vec2& b = *(simplex.begin() + 1);
 			const Vec2& c = *(simplex.begin() + 2);
-			
+
 			Vec2 ca = a - c;
 			Vec2 cb = b - c;
 			Vec2 co = -c;
@@ -266,7 +266,6 @@ CollisionInfoT ExpandingPolytopeAlgorithm2D(const CPolygon& a, const CPolygon& b
 
 	Vec2 A, B;
 
-	bool test = false;
 	while (minDistance == fmax)
 	{
 		for (int i = 0; i < polytope.size(); ++i)
@@ -306,32 +305,9 @@ CollisionInfoT ExpandingPolytopeAlgorithm2D(const CPolygon& a, const CPolygon& b
 			minDistance = fmax;
 			polytope.insert(polytope.begin() + minIndex, support);
 		}
-		if (sDistance < 0.f)
-			test = true;
 	}
 
-
-	// compute on smallest polygon
-	const CPolygon& smallest = a.points.size() <= b.points.size() ? a : b;
-	bool bSmallest = false;
-	// find on which polygon is the normal computed
-	for (int i = 0; i < smallest.points.size(); ++i)
-	{
-		int j = (i + 1) % smallest.points.size();
-
-		Vec2 a = smallest.points[i];
-		Vec2 b = smallest.points[j];
-		Vec2 ab = b - a;
-		if (ab.Dot(minNormal) == 0.f)
-		{
-			bSmallest = true;
-			break;
-		}
-	}
-	if (bSmallest)
-		return { B, A, minNormal, minDistance };
-	else
-		return { A, B, minNormal, minDistance };
+	return { A, B, minNormal, minDistance };
 }
 
 
@@ -434,7 +410,7 @@ bool CPolygon::IsPointInside(const Vec2& point) const
 		maxDist = Max(maxDist, pointDist);
 	}
 
-	return maxDist <= 0.f;
+	return maxDist <= 0.001f;
 }
 
 Vec2 CPolygon::SupportFunction(const Vec2& dir) const
@@ -465,14 +441,20 @@ bool CPolygon::CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, f
 		poly.bCollisionWithOtherPolygon = true;
 
 		auto info = ExpandingPolytopeAlgorithm2D(*this, poly, simplex);
-		Vec2 p = SupportFunction(info.normal);
 		if (gVars->bDebug)
 		{
 			DrawPoint(info.a, 1.f, 0.f, 1.f);
 			DrawPoint(info.b, 1.f, 1.f, 0.f);
 		}
-		colPoint = info.a;
+		//colPoint = info.a;
+		colPoint = info.a - info.normal * info.distance;
 		colNormal = info.normal;
+		//if (!SimplexIntersection(std::deque<Vec2>(points.begin(), points.end()), colPoint))
+		if (!poly.IsPointInside(colPoint))
+		{
+			colNormal = -info.normal;
+			colPoint = info.b - colNormal * info.distance;
+		}
 		colDist = info.distance;
 	}
 	return bCollisionWithOtherPolygon;
