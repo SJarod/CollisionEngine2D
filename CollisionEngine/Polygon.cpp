@@ -130,6 +130,7 @@ Vec2 SimplexDirection(const std::deque<Vec2>& simplex)
 	sign = sign < 0.f ? -1.f : 1.f;
 	return dir * sign;
 }
+// TODO : simplex intersection function with global referential
 // simplex intersection (with origin by default)
 bool SimplexIntersection(const std::deque<Vec2>& simplex, const Vec2& p = { 0.f, 0.f })
 {
@@ -446,10 +447,8 @@ bool CPolygon::CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, f
 			DrawPoint(info.a, 1.f, 0.f, 1.f);
 			DrawPoint(info.b, 1.f, 1.f, 0.f);
 		}
-		//colPoint = info.a;
 		colPoint = info.a - info.normal * info.distance;
 		colNormal = info.normal;
-		//if (!SimplexIntersection(std::deque<Vec2>(points.begin(), points.end()), colPoint))
 		if (!poly.IsPointInside(colPoint))
 		{
 			colNormal = -info.normal;
