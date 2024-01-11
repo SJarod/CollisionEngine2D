@@ -37,13 +37,24 @@ struct SCollision
 {
 	CPolygonPtr	polyA, polyB;
 
-	Vec2	point;
+	Vec2	collision;
 	Vec2	normal;
 	float	distance;
+	Vec2	penetration;
 
 	SCollision() = default;
-	SCollision(CPolygonPtr _polyA, CPolygonPtr _polyB, Vec2	_point, Vec2 _normal, float _distance)
-		: polyA(_polyA), polyB(_polyB), point(_point), normal(_normal), distance(_distance) {}
+	SCollision(CPolygonPtr _polyA,
+		CPolygonPtr _polyB,
+		Vec2 _collision,
+		Vec2 _normal,
+		float _distance,
+		Vec2 _penetration)
+		: polyA(_polyA),
+		polyB(_polyB),
+		collision(_collision),
+		normal(_normal),
+		distance(_distance),
+		penetration(_penetration) {}
 };
 
 class CPhysicEngine

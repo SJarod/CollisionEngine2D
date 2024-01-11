@@ -433,26 +433,38 @@ Vec2 CPolygon::SupportFunction(const Vec2& dir) const
 	return position + support;
 }
 
-bool CPolygon::CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist)
+bool CPolygon::CheckCollision(CPolygon& poly,
+	Vec2& colPoint,
+	Vec2& colNormal,
+	float& colDist,
+	Vec2& penPoint)
 {
+	// collision detection
 	std::deque<Vec2> simplex;
 	if (GilbertJohnsonKeerthi(*this, poly, simplex))
 	{
 		bCollisionWithOtherPolygon = true;
 		poly.bCollisionWithOtherPolygon = true;
 
+		// GJK extension
 		auto info = ExpandingPolytopeAlgorithm2D(*this, poly, simplex);
 		if (gVars->bDebug)
 		{
 			DrawPoint(info.a, 1.f, 0.f, 1.f);
 			DrawPoint(info.b, 1.f, 1.f, 0.f);
 		}
+
+		// collision point reconstruction
 		colPoint = info.a - info.normal * info.distance;
+		penPoint = info.a;
 		colNormal = info.normal;
+		// if point is not inside checked polygon, use other polygon collision point
+		// and invert normal
 		if (!poly.IsPointInside(colPoint))
 		{
 			colNormal = -info.normal;
 			colPoint = info.b - colNormal * info.distance;
+			penPoint = info.b;
 		}
 		colDist = info.distance;
 	}

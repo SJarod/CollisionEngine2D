@@ -39,7 +39,20 @@ public:
 	bool				IsPointInside(const Vec2& point) const;
 
 	Vec2				SupportFunction(const Vec2& dir) const;
-	bool				CheckCollision(CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist);
+	/**
+	 * Collision detection algorithm
+	 * 
+	 * @param polygon to check against
+	 * @param collision point
+	 * @param collision normal
+	 * @param collision distance (normal length)
+	 * @param penetration point
+	 */
+	bool				CheckCollision(CPolygon& poly,
+									   Vec2& colPoint,
+									   Vec2& colNormal,
+									   float& colDist,
+									   Vec2& penPoint);
 
 	// Physics
 	float				density;

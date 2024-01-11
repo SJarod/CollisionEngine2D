@@ -23,14 +23,16 @@ private:
 		//gVars->pPhysicEngine->Activate(false);
 
 
-		Vec2 point, normal;
+		Vec2 col, normal, pen;
 		float dist;
-		if (polyA->CheckCollision(*polyB, point, normal, dist))
+		if (polyA->CheckCollision(*polyB, col, normal, dist, pen))
 		{
-			gVars->pRenderer->DisplayTextWorld("Collision point", point);
+			gVars->pRenderer->DisplayTextWorld("Collision point", col);
+			gVars->pRenderer->DisplayTextWorld("Penetration point", pen);
+
 			gVars->pRenderer->DisplayText("Collision distance : " + std::to_string(dist), 50, 50);
 
-			gVars->pRenderer->DrawLine(point, point + normal * dist, 0.0f, 1.0f, 0.0f);
+			gVars->pRenderer->DrawLine(col, col + normal * dist, 0.f, 0.f, 1.f);
 		}
 	}
 };

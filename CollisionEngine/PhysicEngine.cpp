@@ -76,7 +76,11 @@ void	CPhysicEngine::CollisionNarrowPhase()
 		SCollision collision;
 		collision.polyA = pair.polyA;
 		collision.polyB = pair.polyB;
-		if (collision.polyA->CheckCollision(*(collision.polyB), collision.point, collision.normal, collision.distance))
+		if (collision.polyA->CheckCollision(*(collision.polyB),
+			collision.collision,
+			collision.normal,
+			collision.distance,
+			collision.penetration))
 		{
 			m_collidingPairs.push_back(collision);
 		}
