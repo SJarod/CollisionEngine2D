@@ -26,7 +26,6 @@ protected:
 		params.maxRadius = 1.f;
 		params.minBounds = Vec2(-width * 0.5f + params.maxRadius * 3.0f, -height * 0.5f + params.maxRadius * 3.0f);
 		params.maxBounds = params.minBounds * -1.0f;
-		// TODO : repair random poly generation
 		params.minPoints = 3;
 		params.maxPoints = 9;
 		params.minSpeed = 1.0f;
