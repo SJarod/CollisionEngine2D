@@ -20,7 +20,9 @@ public:
 private:
 	virtual void Update(float frameTime) override
 	{
-		//gVars->pPhysicEngine->Activate(false);
+		gVars->pPhysicEngine->Activate(false);
+
+		gVars->pWorld->ForEachPolygon([](CPolygonPtr poly) { poly->bCollisionWithOtherPolygon = false; });
 
 
 		Vec2 col, normal, pen;
