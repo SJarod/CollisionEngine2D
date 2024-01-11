@@ -360,7 +360,7 @@ void CPolygon::Draw() const
 
 	// aabb
 
-	if (!gVars->bDebug)
+	if (!gVars->bDebug || !gVars->pPhysicEngine->IsActive())
 		return;
 
 	float aabbTRS[16] = { aabb->xrange.GetRange() / 2.f, 0.f, 0.f, 0.f,

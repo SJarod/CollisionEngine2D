@@ -30,6 +30,11 @@ void	CPhysicEngine::Activate(bool active)
 	m_active = active;
 }
 
+bool CPhysicEngine::IsActive() const
+{
+	return m_active;
+}
+
 void	CPhysicEngine::DetectCollisions()
 {
 	CTimer timer;

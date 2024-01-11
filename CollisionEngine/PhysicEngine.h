@@ -62,6 +62,7 @@ class CPhysicEngine
 public:
 	void	Reset();
 	void	Activate(bool active);
+	bool	IsActive() const;
 
 	void	DetectCollisions();
 
