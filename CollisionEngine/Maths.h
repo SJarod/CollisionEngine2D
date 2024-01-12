@@ -198,6 +198,44 @@ struct Vec3
 	{
 		struct { float x; float y; float z; };
 	};
+
+	Vec3() {}
+	Vec3(Vec2 v, float a) : x(v.x), y(v.y), z(a) {}
+	Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
+
+	inline float GetLength() const
+	{
+		return sqrtf(x * x + y * y + z * z);
+	}
+
+	inline float GetSqrLength() const
+	{
+		return x * x + y * y + z * z;
+	}
+
+	inline float Dot(const Vec3& v) const
+	{
+		return (x * v.x) + (y * v.y) + (z * v.z);
+	}
+
+	inline Vec3 Cross(const Vec3& v) const
+	{
+		Vec3 vv;
+		vv.x = y * v.z - z * v.y;
+		vv.y = z * v.x - x * v.z;
+		vv.z = x * v.y - y * v.x;
+		return vv;
+	}
+
+	inline Vec3 operator+(const Vec3& v) const
+	{
+		return Vec3(x + v.x, y + v.y, z + v.z);
+	}
+
+	inline Vec3 operator*(const float& a) const
+	{
+		return Vec3(x * a, y * a, z * a);
+	}
 };
 
 
@@ -237,10 +275,10 @@ struct Mat2
 
 	Mat2 operator*(const Mat2& rhs) const
 	{
-		return Mat2(X.x*rhs.X.x + Y.x*rhs.X.y,
-			X.x*rhs.Y.x + Y.x*rhs.Y.y,
-			X.y*rhs.X.x + Y.y*rhs.X.y,
-			X.y*rhs.Y.x + Y.y*rhs.Y.y);
+		return Mat2(X.x * rhs.X.x + Y.x * rhs.X.y,
+			X.x * rhs.Y.x + Y.x * rhs.Y.y,
+			X.y * rhs.X.x + Y.y * rhs.X.y,
+			X.y * rhs.Y.x + Y.y * rhs.Y.y);
 	}
 
 	Mat2 operator*=(const Mat2& rhs)
