@@ -29,7 +29,7 @@ private:
 
 				// velocity impulse
 
-				float restitution = 1.f / 9.f;
+				float restitution = 1.f;
 
 				Vec2 rA = collision.collision - collision.polyA->position;
 				Vec2 rB = collision.collision - collision.polyB->position;
@@ -37,8 +37,8 @@ private:
 				Vec2 aspeed = collision.polyA->speed;
 				Vec2 bspeed = collision.polyB->speed;
 
-				Vec2 vAi = aspeed + rA.GetNormal() * collision.polyA->angularSpeed;
-				Vec2 vBi = bspeed + rB.GetNormal() * collision.polyB->angularSpeed;
+				Vec2 vAi = aspeed + rA * collision.polyA->angularSpeed;
+				Vec2 vBi = bspeed + rB * collision.polyB->angularSpeed;
 
 				float alocalTensor = collision.polyA->mass *
 					(collision.polyA->position - collision.collision).GetSqrLength();
@@ -54,8 +54,8 @@ private:
 
 				float momentumA = ainvWorldTensor;
 				float momentumB = binvWorldTensor;
-				float weightRotA = (rA.GetNormal() * momentumA).Dot(normal);
-				float weightRotB = (rB.GetNormal() * momentumB).Dot(normal);
+				float weightRotA = (rA * momentumA).Dot(normal);
+				float weightRotB = (rB * momentumB).Dot(normal);
 
 				// are polygons going towards each other ?
 				float vRel = (vAi - vBi).Dot(normal);
@@ -90,7 +90,7 @@ private:
 #if 1
 				// rotation
 				Mat2 m = Mat2();
-#if 0
+#if 1
 				m.SetAngle(poly->rotation.GetAngle() + poly->angularSpeed * frameTime);
 				poly->rotation = m;
 #else
