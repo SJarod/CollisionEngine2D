@@ -197,6 +197,7 @@ struct Vec3
 	union
 	{
 		struct { float x; float y; float z; };
+		Vec2 xy;
 	};
 
 	Vec3() {}
