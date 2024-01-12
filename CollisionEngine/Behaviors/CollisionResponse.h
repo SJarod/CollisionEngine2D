@@ -40,6 +40,8 @@ private:
 				Vec2 vAi = aspeed + rA.GetNormal() * collision.polyA->angularSpeed;
 				Vec2 vBi = bspeed + rB.GetNormal() * collision.polyB->angularSpeed;
 
+				// I = m.l^2
+
 				float alocalTensor = collision.polyA->mass *
 					(collision.polyA->position - collision.collision).GetSqrLength();
 				float ainvlocalTensor = 1.f / alocalTensor;
