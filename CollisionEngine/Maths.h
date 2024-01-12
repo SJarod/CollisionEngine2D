@@ -49,6 +49,11 @@ struct Vec2
 
 	Vec2(float _x, float _y) : x(_x), y(_y){}
 
+	inline Vec2 operator+(const float& a) const
+	{
+		return Vec2(x + a, y + a);
+	}
+
 	inline Vec2 operator+(const Vec2& rhs) const
 	{
 		return Vec2(x + rhs.x, y + rhs.y);
@@ -154,7 +159,7 @@ struct Vec2
 		return Vec2(-y, x);
 	}
 
-	inline float Angle(const Vec2& to)
+	inline float Angle(const Vec2& to) const
 	{
 		float cosAngle = Clamp(Normalized() | to.Normalized(), -1.0f, 1.0f);
 		float angle = RAD2DEG(acosf(cosAngle)) * Sign(*this ^ to);
@@ -179,6 +184,20 @@ struct Vec2
 	{
 		return (x * v.x) + (y * v.y);
 	}
+
+	inline float Cross(const Vec2& v) const
+	{
+		return GetLength() * v.GetLength() * sinf(Angle(v));
+	}
+};
+
+
+struct Vec3
+{
+	union
+	{
+		struct { float x; float y; float z; };
+	};
 };
 
 
@@ -218,12 +237,49 @@ struct Mat2
 
 	Mat2 operator*(const Mat2& rhs) const
 	{
-		return Mat2(X.x*rhs.X.x + Y.x*rhs.X.y, X.x*rhs.Y.x + Y.x*rhs.Y.y, X.y*rhs.X.x + Y.y*rhs.X.y, X.y*rhs.Y.x + Y.y*rhs.Y.y);
+		return Mat2(X.x*rhs.X.x + Y.x*rhs.X.y,
+			X.x*rhs.Y.x + Y.x*rhs.Y.y,
+			X.y*rhs.X.x + Y.y*rhs.X.y,
+			X.y*rhs.Y.x + Y.y*rhs.Y.y);
+	}
+
+	Mat2 operator*=(const Mat2& rhs)
+	{
+		*this = *this * rhs;
+		return *this;
 	}
 
 	Vec2 operator*(const Vec2& vec) const
 	{
 		return Vec2(X.x*vec.x + Y.x*vec.y, X.y*vec.x + Y.y*vec.y);
+	}
+
+	Mat2 operator*(const float& a) const
+	{
+		return Mat2(X.x * a,
+			Y.x * a,
+			X.y * a,
+			Y.y * a);
+	}
+
+	Mat2 operator*=(const float& a)
+	{
+		*this = *this * a;
+		return *this;
+	}
+
+	Mat2 operator+(const Mat2& m) const
+	{
+		return Mat2(X.x + m.X.x,
+			Y.x + m.Y.x,
+			X.y + m.X.y,
+			Y.y + m.Y.y);
+	}
+
+	Mat2 operator+=(const Mat2& m)
+	{
+		*this = *this + m;
+		return *this;
 	}
 };
 

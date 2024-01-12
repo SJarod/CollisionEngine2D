@@ -4,6 +4,7 @@
 #include "BaseScene.h"
 
 #include "Behaviors/SimplePolygonBounce.h"
+#include "Behaviors/CollisionResponse.h"
 
 class CSceneBouncingPolys : public CBaseScene
 {
@@ -16,7 +17,8 @@ protected:
 	{
 		CBaseScene::Create();
 
-		gVars->pWorld->AddBehavior<CSimplePolygonBounce>(nullptr);
+		//gVars->pWorld->AddBehavior<CSimplePolygonBounce>(nullptr);
+		gVars->pWorld->AddBehavior<CCollisionResponse>(nullptr);
 
 		float width = gVars->pRenderer->GetWorldWidth();
 		float height = gVars->pRenderer->GetWorldHeight();

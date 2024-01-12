@@ -173,6 +173,7 @@ xcopy /Y $(SolutionDir)Libs\glew\bin\Release\Win32\glew32.dll $(SolutionDir)$(Co
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Behavior.h" />
+    <ClInclude Include="Behaviors\CollisionResponse.h" />
     <ClInclude Include="Behaviors\DisplayCollision.h" />
     <ClInclude Include="Behaviors\PolygonMoverTool.h" />
     <ClInclude Include="Behaviors\SimplePolygonBounce.h" />

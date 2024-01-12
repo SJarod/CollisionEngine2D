@@ -55,8 +55,10 @@ public:
 									   Vec2& penPoint);
 
 	// Physics
+	float				mass;
 	float				density;
 	Vec2				speed;
+	float				angularSpeed;
 
 private:
 	void				CreateBuffers();

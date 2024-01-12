@@ -313,7 +313,7 @@ CollisionInfoT ExpandingPolytopeAlgorithm2D(const CPolygon& a, const CPolygon& b
 
 
 CPolygon::CPolygon(size_t index)
-	: m_polygonVertexBufferId(0), m_index(index), density(0.1f)
+	: m_polygonVertexBufferId(0), m_index(index), mass(1.f), density(0.1f)
 {
 	aabb = std::make_shared<CAxisAlignedBoundingBox>(*this);
 }
@@ -462,8 +462,10 @@ bool CPolygon::CheckCollision(CPolygon& poly,
 		// and invert normal
 		if (!poly.IsPointInside(colPoint))
 		{
-			colNormal = -info.normal;
-			colPoint = info.b - colNormal * info.distance;
+			// normal should logically be inverted but it breaks
+			// the collision response
+			//colNormal = -info.normal;
+			colPoint = info.b + colNormal * info.distance;
 			penPoint = info.b;
 		}
 		colDist = info.distance;
